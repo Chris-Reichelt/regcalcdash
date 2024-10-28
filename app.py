@@ -7,6 +7,7 @@ import pandas as pd
 
 # Initialize Dash app
 app = dash.Dash(__name__)
+server = app.server
 
 app.layout = html.Div([
     html.H1("Reg Calc", style={'textAlign': 'center'}),
