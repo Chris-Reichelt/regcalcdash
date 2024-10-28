@@ -95,7 +95,7 @@ Definitions:
 - [Small Satellite System](https://www.fcc.gov/space/small-satellite-and-small-spacecraft-licensing-process)
 - [Consolidated Screening List](https://www.trade.gov/consolidated-screening-list)
 - [Prohibited Countries List](https://www.ecfr.gov/current/title-22/chapter-I/subchapter-M/part-126/section-126.1)
-''', style={'textAlign': 'center', 'marginBottom': '20px'}),
+''', style={'textAlign': 'left', 'marginBottom': '20px'}),
     
     # Other components like questions, buttons, etc.
     
