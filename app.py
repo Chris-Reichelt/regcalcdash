@@ -59,7 +59,7 @@ setup_database()
 
 # Layout with headers, questions, and buttons
 app.layout = html.Div([
-    html.H1("Reg Calc", style={'textAlign': 'center'}),
+    html.H1("Reg Calc", style={'textAlign': 'left'}),
     
     
     dcc.Markdown('''
@@ -98,15 +98,6 @@ Definitions:
 ''', style={'textAlign': 'center', 'marginBottom': '20px'}),
     
     # Other components like questions, buttons, etc.
-
-    
-    
-    
-    
-    html.Div([
-        html.P("This calculator is for U.S. commercial space companies that want to understand the potential complexity, time, and cost involved in navigating the federal regulatory landscape.", style={'textAlign': 'center'}),
-        html.P("To use the calculator, answer a series of 'yes/no' questions about one mission. The more defined your mission, the better answers you'll receive.", style={'textAlign': 'center'}),
-    ]),
     
     html.H3("Question:", style={'textAlign': 'center'}),
     html.Div(id="question-container", style={'textAlign': 'center', 'margin': '20px'}),
