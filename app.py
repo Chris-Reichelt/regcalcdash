@@ -1,99 +1,74 @@
-from dash import Dash, dcc, html, Input, Output, State
+# app.py
+import dash
+from dash import dcc, html, Input, Output, State
+import dash_table
+import sqlite3
 import pandas as pd
-import dash_bootstrap_components as dbc
-from dash.dash_table import DataTable
 
-# Initialize the Dash app
-app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-server=app.server
+# Initialize Dash app
+app = dash.Dash(__name__)
 
-# Initialize questions and data storage
-question1 = [
-    ["Will you be communicating with a launch vehicle...", "FCC – Satellites and earth stations"],
-    # Add other questions as needed
-]
+app.layout = html.Div([
+    html.H1("Reg Calc", style={'textAlign': 'center'}),
+    html.Div(id="question-container"),
+    html.Div([
+        html.Button("Yes", id="yes-button", n_clicks=0),
+        html.Button("No", id="no-button", n_clicks=0),
+    ], style={'textAlign': 'center'}),
+    html.Div(id="answer-summary"),
+    html.H2("Summary", style={'textAlign': 'center'}),
+    dcc.Store(id='current-stage', data=1),
+    dcc.Store(id='current-question', data=0),
+    dash_table.DataTable(id='summary-table')
+])
 
-# Store answers in a dictionary
-state_data = {
-    "answer1": set(),
-    "all1": pd.DataFrame(columns=("Question", "Answer")),
-}
+# Helper function to retrieve questions based on stage
+def get_question(stage, question_id):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT question_text FROM questions WHERE stage = ? AND id = ?", (stage, question_id))
+    result = cursor.fetchone()
+    conn.close()
+    return result[0] if result else None
 
-# Define the app layout
-app.layout = dbc.Container([
-    html.H1("Regulatory Calculator", className="text-center mt-4"),
-    dcc.Tabs(id="tabs", value="tab-1", children=[
-        dcc.Tab(label="Section 1: Agencies", value="tab-1"),
-        dcc.Tab(label="Section 2: Timeline", value="tab-2"),
-        dcc.Tab(label="Section 3: Costs", value="tab-3"),
-        dcc.Tab(label="Summary", value="tab-summary"),
-    ]),
-    html.Div(id="tab-content")
-], fluid=True)
-
-# Callbacks for Tabs
-@app.callback(Output("tab-content", "children"), Input("tabs", "value"))
-def render_content(tab):
-    if tab == "tab-1":
-        return section_one_content()
-    elif tab == "tab-2":
-        return section_two_content()
-    elif tab == "tab-3":
-        return section_three_content()
-    elif tab == "tab-summary":
-        return summary_content()
-
-# Define the content for each section
-def section_one_content():
-    return html.Div([
-        html.H3("Section 1: Agencies"),
-        html.P(question1[0][0]),  # Display question text
-        dbc.Button("Yes", id="q1-yes", color="success", n_clicks=0),
-        dbc.Button("No", id="q1-no", color="danger", n_clicks=0),
-        html.Div(id="output-q1")
-    ])
-
-def section_two_content():
-    return html.Div([
-        html.H3("Section 2: Timeline"),
-        # Add content as needed
-    ])
-
-def section_three_content():
-    return html.Div([
-        html.H3("Section 3: Costs"),
-        # Add content as needed
-    ])
-
-def summary_content():
-    return html.Div([
-        html.H3("Summary"),
-        html.H4("You need to talk to:"),
-        DataTable(
-            id="summary-table",
-            columns=[{"name": i, "id": i} for i in state_data["all1"].columns],
-            data=state_data["all1"].to_dict("records"),
-            style_table={"overflowX": "auto"},
-        ),
-    ])
-
-# Callback for Section 1 buttons
+# Callback to display the current question
 @app.callback(
-    Output("output-q1", "children"),
-    Input("q1-yes", "n_clicks"),
-    Input("q1-no", "n_clicks"),
-    State("output-q1", "children")
+    Output("question-container", "children"),
+    Input("current-stage", "data"),
+    Input("current-question", "data"),
 )
-def update_section_one(q1_yes, q1_no, existing_output):
-    if q1_yes > 0:
-        # Store the answer
-        state_data["answer1"].add(question1[0][1])
-        state_data["all1"] = state_data["all1"].append({"Question": question1[0][0], "Answer": question1[0][1]}, ignore_index=True)
-        return f"You answered Yes. Current answers: {', '.join(state_data['answer1'])}"
-    elif q1_no > 0:
-        return "You answered No."
-    return existing_output
+def display_question(stage, question_id):
+    question = get_question(stage, question_id)
+    return question or "No more questions for this stage."
 
-# Run the app
-if __name__ == "__main__":
+# Logic to handle Yes/No responses and advance through questions
+@app.callback(
+    Output("current-question", "data"),
+    Output("answer-summary", "children"),
+    Input("yes-button", "n_clicks"),
+    Input("no-button", "n_clicks"),
+    State("current-stage", "data"),
+    State("current-question", "data")
+)
+def handle_response(yes_clicks, no_clicks, stage, question_id):
+    # Move to the next question
+    next_question = question_id + 1
+    return next_question, f"Response recorded for Question {question_id}"
+
+# Callback to update the summary table
+@app.callback(
+    Output('summary-table', 'data'),
+    Input("current-stage", "data")
+)
+def update_summary(stage):
+    # Example DataFrame for summary display
+    if stage > 3:
+        summary_data = pd.DataFrame([
+            {"Question": "Sample question 1", "Answer": "Yes"},
+            {"Question": "Sample question 2", "Answer": "No"},
+        ])
+        return summary_data.to_dict('records')
+    return []
+
+if __name__ == '__main__':
     app.run_server(debug=True)
