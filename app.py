@@ -50,7 +50,7 @@ Definitions:
 ''', style={'textAlign': 'center', 'marginBottom': '20px'}),
     
     # Other components like questions, buttons, etc.
-])
+
     
     
     
