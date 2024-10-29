@@ -11,8 +11,6 @@ app = dash.Dash(__name__)
 server = app.server
 
 
-# Call setup_database to ensure the database is ready
-setup_database()
 
 # Layout with headers, questions, and buttons
 app.layout = html.Div([
