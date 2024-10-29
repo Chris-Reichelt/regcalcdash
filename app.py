@@ -76,9 +76,16 @@ Definitions:
 def get_question(stage, question_id):
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT question_text FROM questions WHERE stage = ? LIMIT 1 OFFSET ?", (stage, question_id))
+    cursor.execute("SELECT question_text FROM questions WHERE stage = ? ORDER BY id LIMIT 1 OFFSET ?", (stage, question_id))
     result = cursor.fetchone()
     conn.close()
+    
+    # Debugging output to check if the question is retrieved correctly
+    if result:
+        print(f"Retrieved question for stage {stage}, question ID {question_id}: {result[0]}")
+    else:
+        print(f"No question found for stage {stage}, question ID {question_id}.")
+    
     return result[0] if result else None
 
 # Initialize list to store responses
@@ -91,16 +98,17 @@ responses = []
 )
 def display_question(stage, question_id):
     question = get_question(stage, question_id)
+    if question:
+        print(f"Displaying question: {question}")
+    else:
+        print("No more questions to display.")
     return question or "No more questions for this stage."
 
 # Callback to handle Yes/No button clicks and update responses
 @app.callback(
-    Output("current-question", "data"),
-    Output("answer-summary", "children"),
-    Input("yes-button", "n_clicks"),
-    Input("no-button", "n_clicks"),
-    State("current-stage", "data"),
-    State("current-question", "data")
+    [Output("current-question", "data"), Output("answer-summary", "children")],
+    [Input("yes-button", "n_clicks"), Input("no-button", "n_clicks")],
+    [State("current-stage", "data"), State("current-question", "data")]
 )
 def handle_response(yes_clicks, no_clicks, stage, question_id):
     # Determine if "Yes" or "No" was clicked
@@ -113,6 +121,7 @@ def handle_response(yes_clicks, no_clicks, stage, question_id):
     question_text = get_question(stage, question_id)
     if question_text:
         responses.append((question_text, response))
+        print(f"Recorded response for question {question_id}: {response}")
 
     # Move to the next question
     next_question_id = question_id + 1
@@ -124,8 +133,7 @@ def handle_response(yes_clicks, no_clicks, stage, question_id):
     [Input("current-stage", "data"), Input("current-question", "data")]
 )
 def update_summary(stage, question_id):
-    # Only display the summary if all questions in the stage are complete
-    max_questions_in_stage = 5  # Example max number of questions in a stage (adjust as necessary)
+    max_questions_in_stage = 5  # Adjust this to the actual number of questions per stage
     if question_id >= max_questions_in_stage:
         # Convert responses to a DataFrame and display in table
         df = pd.DataFrame(responses, columns=["Question", "Answer"])
