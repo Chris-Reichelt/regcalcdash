@@ -1,24 +1,28 @@
 # setup_database.py
 import sqlite3
+import os
 
 def setup_database():
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    
-    # Create the questions table
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS questions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            question_text TEXT,
-            category TEXT,
-            stage INTEGER,
-            response_yes TEXT,
-            response_no TEXT
-        )
-    ''')
+    # Check if the database already exists
+    if not os.path.exists('database.db'):
+        print("Creating database and inserting questions...")
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        
+        # Create the questions table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS questions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                question_text TEXT,
+                category TEXT,
+                stage INTEGER,
+                response_yes TEXT,
+                response_no TEXT
+            )
+        ''')
 
-    # Insert questions into the database
-    questions = [
+        # Insert questions into the database
+        questions = [
            #Stage 1 questions
            ('Will you be communicating with a launch vehicle, spacecraft, satellite,\n or U.S. based earth station via inter-satellite link, uplink or downlink? ', 'FCC – Satellites and earth stations', 1, 'Yes response text', 'No response text'),
            ('Will you be responsible for authorizing the launch of a suborbital or orbital\n vehicle that’s not an Amateur Rocket? ', 'FAA - AST', 1, 'Yes response text', 'No response text'),
@@ -34,10 +38,38 @@ def setup_database():
            ('Are you a foreign company utilizing US origin Technical Data or integrating \n ITAR controlled components in your final product?','State – DDTC', 1, 'Yes response text', 'No response text'),
            ('Are you a US Person employing a Foreign Person to work on EAR controlled\n Technology? ','Commerce – BIS', 1, 'Yes response text', 'No response text'),
            ('Are you a foreign company utilizing US origin Technology or integrating\n EAR controlled components in your final product?','Commerce – BIS', 1, 'Yes response text', 'No response text'),
-]
-    cursor.executemany('INSERT INTO questions (question_text, category, stage, response_yes, response_no) VALUES (?, ?, ?, ?, ?)', questions)
 
-    conn.commit()
+           #Stage 2 questions
+          ('Will the mission be experimental?','6-12 months for experimental space stations. Less for earth stations. \n',2),
+          ('Will the mission be a commercial licensing\n of a space station operating in geostationary orbit?','12-18 months \n',2),
+          ('If licensing a commercial space station, will your system qualify\n as a small satellite system?','3-12 months \n',2),
+          ('If licensing a commercial space station, will your non-geostationary satellite\n system use 20 or more earth stations?','6 months to 2 years depending on spectral allocation \n',2),
+          ('If licensing a commercial space station,\n will your non-geostationary satellite system use less than 20 earth stations?','6 months to 1.5 years depending on spectral allocation \n',2),
+          ('If licensing an earth station, will your earth station be mobile?','6-18 months \n',2),
+          ('If licensing an earth station, will it be for a single site?', '3-12 months \n',2),
+          ('If licensing an earth station, will it be for ubiquitous use?', '8-18 months \n',2),
+          ('Do you plan to license and operate your own earth stations?','4-12 months \n',2)
+]
+        
+        # Insert the questions
+        cursor.executemany('INSERT INTO questions (question_text, category, stage, response_yes, response_no) VALUES (?, ?, ?, ?, ?)', questions)
+        conn.commit()
+
+        print("Questions have been added to the database.")
+    else:
+        print("Database already exists. Skipping question insertion.")
+
+    # Verify the contents of the database
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM questions")
+    all_questions = cursor.fetchall()
+    if all_questions:
+        print("Database contents:")
+        for question in all_questions:
+            print(question)
+    else:
+        print("No questions found in the database.")
     conn.close()
 
 if __name__ == "__main__":
