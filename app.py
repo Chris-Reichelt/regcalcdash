@@ -74,7 +74,7 @@ app.layout = html.Div([
   
     html.Div([    
     dcc.Markdown('''
-# Space Regulatory Calculator 
+
 #### This calculator is for U.S. commercial space companies that want to understand the potential complexity, time, and cost involved in navigating the federal regulatory landscape. 
 
 #### Regulatory compliance is a requirement for U.S. companies and circumvention or noncompliance may lead to fines, penalties, and even incarceration.
