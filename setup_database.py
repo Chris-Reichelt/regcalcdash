@@ -44,15 +44,15 @@ def setup_database():
            ('Are you a foreign company utilizing US origin Technology or integrating\n EAR controlled components in your final product?','Commerce – BIS', 1, 'Yes response text', 'No response text'),
 
            #Stage 2 questions
-          ('Will the mission be experimental?','6-12 months for experimental space stations. Less for earth stations. \n',2),
-          ('Will the mission be a commercial licensing\n of a space station operating in geostationary orbit?','12-18 months \n',2),
-          ('If licensing a commercial space station, will your system qualify\n as a small satellite system?','3-12 months \n',2),
-          ('If licensing a commercial space station, will your non-geostationary satellite\n system use 20 or more earth stations?','6 months to 2 years depending on spectral allocation \n',2),
-          ('If licensing a commercial space station,\n will your non-geostationary satellite system use less than 20 earth stations?','6 months to 1.5 years depending on spectral allocation \n',2),
-          ('If licensing an earth station, will your earth station be mobile?','6-18 months \n',2),
-          ('If licensing an earth station, will it be for a single site?', '3-12 months \n',2),
-          ('If licensing an earth station, will it be for ubiquitous use?', '8-18 months \n',2),
-          ('Do you plan to license and operate your own earth stations?','4-12 months \n',2)
+          ('Will the mission be experimental?','6-12 months for experimental space stations. Less for earth stations. \n',2, 'Yes response text', 'No response text'),
+          ('Will the mission be a commercial licensing\n of a space station operating in geostationary orbit?','12-18 months \n',2, 'Yes response text', 'No response text'),
+          ('If licensing a commercial space station, will your system qualify\n as a small satellite system?','3-12 months \n',2, 'Yes response text', 'No response text'),
+          ('If licensing a commercial space station, will your non-geostationary satellite\n system use 20 or more earth stations?','6 months to 2 years depending on spectral allocation \n',2, 'Yes response text', 'No response text'),
+          ('If licensing a commercial space station,\n will your non-geostationary satellite system use less than 20 earth stations?','6 months to 1.5 years depending on spectral allocation \n',2, 'Yes response text', 'No response text'),
+          ('If licensing an earth station, will your earth station be mobile?','6-18 months \n',2, 'Yes response text', 'No response text'),
+          ('If licensing an earth station, will it be for a single site?', '3-12 months \n',2, 'Yes response text', 'No response text'),
+          ('If licensing an earth station, will it be for ubiquitous use?', '8-18 months \n',2, 'Yes response text', 'No response text'),
+          ('Do you plan to license and operate your own earth stations?','4-12 months \n',2, 'Yes response text', 'No response text')
 ]
 
     # Insert the questions if the database was just created (to avoid duplicates)
