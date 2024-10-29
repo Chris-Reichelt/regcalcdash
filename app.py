@@ -45,6 +45,17 @@ def setup_database():
            ('Are you a foreign company utilizing US origin Technical Data or integrating \n ITAR controlled components in your final product?','State – DDTC', 1, 'Yes response text', 'No response text'),
            ('Are you a US Person employing a Foreign Person to work on EAR controlled\n Technology? ','Commerce – BIS', 1, 'Yes response text', 'No response text'),
            ('Are you a foreign company utilizing US origin Technology or integrating\n EAR controlled components in your final product?','Commerce – BIS', 1, 'Yes response text', 'No response text'),
+
+           #Stage 2 questions
+          ('Will the mission be experimental?','6-12 months for experimental space stations. Less for earth stations. \n',2),
+          ('Will the mission be a commercial licensing\n of a space station operating in geostationary orbit?','12-18 months \n',2),
+          ('If licensing a commercial space station, will your system qualify\n as a small satellite system?','3-12 months \n',2),
+          ('If licensing a commercial space station, will your non-geostationary satellite\n system use 20 or more earth stations?','6 months to 2 years depending on spectral allocation \n',2),
+          ('If licensing a commercial space station,\n will your non-geostationary satellite system use less than 20 earth stations?','6 months to 1.5 years depending on spectral allocation \n',2),
+          ('If licensing an earth station, will your earth station be mobile?','6-18 months \n',2),
+          ('If licensing an earth station, will it be for a single site?', '3-12 months \n',2),
+          ('If licensing an earth station, will it be for ubiquitous use?', '8-18 months \n',2),
+          ('Do you plan to license and operate your own earth stations?','4-12 months \n',2)
 ]
         
         cursor.executemany('INSERT INTO questions (question_text, category, stage, response_yes, response_no) VALUES (?, ?, ?, ?, ?)', questions)
@@ -59,9 +70,9 @@ setup_database()
 
 # Layout with headers, questions, and buttons
 app.layout = html.Div([
-    html.H1("Reg Calc", style={'textAlign': 'left'}),
-    
-    
+    html.H1("Space Regulatory Calculator"),
+  
+    html.Div([    
     dcc.Markdown('''
 # Space Regulatory Calculator 
 #### This calculator is for U.S. commercial space companies that want to understand the potential complexity, time, and cost involved in navigating the federal regulatory landscape. 
@@ -95,24 +106,26 @@ Definitions:
 - [Small Satellite System](https://www.fcc.gov/space/small-satellite-and-small-spacecraft-licensing-process)
 - [Consolidated Screening List](https://www.trade.gov/consolidated-screening-list)
 - [Prohibited Countries List](https://www.ecfr.gov/current/title-22/chapter-I/subchapter-M/part-126/section-126.1)
-''', style={'textAlign': 'left', 'marginBottom': '20px'}),
-    
-    # Other components like questions, buttons, etc.
-    
+'''),
+    ], className='intro-text'),  # Apply the intro-text class here
+
     html.H3("Question:", style={'textAlign': 'center'}),
+
+    # Question container styling
     html.Div(id="question-container", style={'textAlign': 'center', 'margin': '20px'}),
 
+    # Buttons with centered alignment and custom CSS styling
     html.Div([
-        html.Button("Yes", id="yes-button", n_clicks=0, style={'margin': '10px', 'padding': '10px 20px'}),
-        html.Button("No", id="no-button", n_clicks=0, style={'margin': '10px', 'padding': '10px 20px'}),
+        html.Button("Yes", id="yes-button", n_clicks=0),
+        html.Button("No", id="no-button", n_clicks=0),
     ], style={'textAlign': 'center'}),
 
+    # Display recorded responses after each question
     html.Div(id="answer-summary", style={'textAlign': 'center', 'marginTop': '20px'}),
 
+    # Summary header and DataTable for displaying the summary
     html.H2("Summary", style={'textAlign': 'center', 'marginTop': '20px'}),
-    dcc.Store(id='current-stage', data=1),
-    dcc.Store(id='current-question', data=0),
-    dash_table.DataTable(id='summary-table', style_table={'width': '80%', 'margin': 'auto'})
+    dash_table.DataTable(id='summary-table', style_table={'width': '100%', 'margin': 'auto'})
 ])
 
 # Helper function to retrieve a question based on stage and question ID
