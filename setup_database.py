@@ -1,15 +1,15 @@
-# setup_database.py
 import sqlite3
 import os
 
 def setup_database():
     # Check if the database already exists
-    if not os.path.exists('database.db'):
-        print("Creating database and inserting questions...")
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        
-        # Create the questions table
+    db_exists = os.path.exists('database.db')
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    # Create the questions table if it doesn't exist
+    if not db_exists:
+        print("Creating database and questions table...")
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS questions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,9 +20,13 @@ def setup_database():
                 response_no TEXT
             )
         ''')
+        conn.commit()
+        print("Table 'questions' created.")
+    else:
+        print("Database already exists. Skipping table creation.")
 
-        # Insert questions into the database
-        questions = [
+    # Insert questions into the database
+    questions = [
            #Stage 1 questions
            ('Will you be communicating with a launch vehicle, spacecraft, satellite,\n or U.S. based earth station via inter-satellite link, uplink or downlink? ', 'FCC – Satellites and earth stations', 1, 'Yes response text', 'No response text'),
            ('Will you be responsible for authorizing the launch of a suborbital or orbital\n vehicle that’s not an Amateur Rocket? ', 'FAA - AST', 1, 'Yes response text', 'No response text'),
@@ -50,18 +54,19 @@ def setup_database():
           ('If licensing an earth station, will it be for ubiquitous use?', '8-18 months \n',2),
           ('Do you plan to license and operate your own earth stations?','4-12 months \n',2)
 ]
-        
-        # Insert the questions
-        cursor.executemany('INSERT INTO questions (question_text, category, stage, response_yes, response_no) VALUES (?, ?, ?, ?, ?)', questions)
-        conn.commit()
 
-        print("Questions have been added to the database.")
+    # Insert the questions if the database was just created (to avoid duplicates)
+    if not db_exists:
+        cursor.executemany(
+            'INSERT INTO questions (question_text, category, stage, response_yes, response_no) VALUES (?, ?, ?, ?, ?)', 
+            questions
+        )
+        conn.commit()
+        print(f"Inserted {len(questions)} questions into the database.")
     else:
-        print("Database already exists. Skipping question insertion.")
+        print("Database already has questions. Skipping insertion.")
 
     # Verify the contents of the database
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
     cursor.execute("SELECT * FROM questions")
     all_questions = cursor.fetchall()
     if all_questions:
@@ -70,7 +75,11 @@ def setup_database():
             print(question)
     else:
         print("No questions found in the database.")
+    
     conn.close()
 
 if __name__ == "__main__":
     setup_database()
+
+
+        
